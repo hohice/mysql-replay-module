@@ -11,7 +11,7 @@ void new_crypt(char *result, const char *password, char *message);
 int parse_handshake_init_cont(unsigned char *payload,
         size_t length, char *scramble);
 int change_clt_auth_content(unsigned char *payload, 
-        int length, char *password, char *message);
+        int length, char* m_user,char *password, char *message);
 int change_clt_second_auth_content(unsigned char *payload,
         size_t length, char *new_content);
 

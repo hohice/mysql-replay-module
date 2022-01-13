@@ -23,6 +23,8 @@ typedef struct {
     char     scramble[SCRAMBLE_LENGTH + 1];
     char     seed323[SEED_323_LENGTH + 1];
     char     password[MAX_PASSWORD_LEN];
+    char     user[MAX_USER_LEN];
+    char     map_user[MAX_USER_LEN];
 } tc_mysql_session;
 
 
@@ -491,7 +493,7 @@ mysql_dispose_auth(tc_sess_t *s, tc_iph_t *ip, tc_tcph_t *tcp)
         payload = (unsigned char *) ((char *) tcp + size_tcp);
         tc_log_debug1(LOG_INFO, 0, "change fir auth:%u", ntohs(s->src_port));
         auth_success = change_clt_auth_content(payload, (int) cont_len, 
-                mysql_sess->password, mysql_sess->scramble);
+               mysql_sess->map_user, mysql_sess->password, mysql_sess->scramble);
 
         if (!auth_success) {
             s->sm.sess_over  = 1; 

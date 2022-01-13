@@ -3,6 +3,7 @@
 #include "pairs.h"
 
 static hash_table *user_pwd_table = NULL;
+static hash_table *user_map_table = NULL;
 
 static uint64_t
 get_key_from_user(char *user)
@@ -22,6 +23,30 @@ get_key_from_user(char *user)
     return key;
 }
 
+char* 
+retrieve_user_map(char *user)
+{
+    uint64_t    key;
+    mysql_user *p_user_info;
+
+    if (user_pwd_table == NULL) {
+        tc_log_info(LOG_ERR, 0, "empty user info in conf/plugin.conf");
+        fprintf(stderr, "empty user info in conf/plugin.conf\n");
+        return NULL;
+    }
+
+    key         = get_key_from_user(user);
+    p_user_info = hash_find(user_pwd_table, key);
+
+    while (p_user_info) {
+        if (strcmp(p_user_info->user, user) == 0) {
+            return p_user_info->map_user;
+        }
+        p_user_info = p_user_info->next;
+    }
+
+    return NULL;
+}
 char *
 retrieve_user_pwd(char *user)
 {
@@ -50,7 +75,7 @@ retrieve_user_pwd(char *user)
 int 
 retrieve_mysql_user_pwd_info(tc_pool_t *pool, char *pairs)
 {
-    char       *p, *end, *q, *next, *pair_end;
+    char       *p, *end, *q, *next, *pair_end,user_temp[256+256],*to_user,map_user[256];
     size_t      len;  
     uint64_t    key;
     mysql_user *p_user_info, *p_tmp_user_info;
@@ -69,7 +94,7 @@ retrieve_mysql_user_pwd_info(tc_pool_t *pool, char *pairs)
 
     do {
         next = strchr(p, ',');
-        q = strchr(p, '@');
+        q = strchr(p, ':');
 
         if (next != NULL) {
             if (next != p) {
@@ -97,7 +122,20 @@ retrieve_mysql_user_pwd_info(tc_pool_t *pool, char *pairs)
             return -1;
         }
 
-        strncpy(p_user_info->user, p, q - p);
+        
+//user_temp
+        strncpy(user_temp, p, q - p);
+        to_user = strchr(p, '#');
+        if (next != NULL) {
+            strncpy(p_user_info->map_user, to_user+1, q - to_user);
+            strncpy(p_user_info->user, p, to_user-p);
+        }else{
+            strncpy(p_user_info->user, p, q - p);
+        }
+
+        
+
+
         strncpy(p_user_info->password, q + 1, pair_end - q);
         key = get_key_from_user(p_user_info->user);
         p_tmp_user_info = hash_find(user_pwd_table, key);

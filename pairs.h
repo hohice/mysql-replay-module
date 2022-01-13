@@ -6,11 +6,13 @@
 
 typedef struct mysql_user{
 	char user[MAX_USER_LEN];
+	char map_user[MAX_USER_LEN];
 	char password[MAX_PASSWORD_LEN];
 	struct mysql_user* next;
 }mysql_user;
 
 char *retrieve_user_pwd(char *user);
+char *retrieve_user_map(char *user);
 int retrieve_mysql_user_pwd_info(tc_pool_t *, char *);
 
 #endif

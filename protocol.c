@@ -167,7 +167,7 @@ parse_handshake_init_cont(unsigned char *payload, size_t length,
 
 int
 change_clt_auth_content(unsigned char *payload, int length,
-        char *password, char *message)
+        char* m_user,char *password, char *message)
 {
     /*
      * 4                            client_flags
@@ -178,7 +178,7 @@ change_clt_auth_content(unsigned char *payload, int length,
      * n (Length Coded Binary)      scramble_buff (1 + x bytes) 
      * n (Null-Terminated String)   databasename (optional)
      */
-    char          *str, user[256], *pwd;
+    char          *str, user[256],*pm_user, *pwd;
     size_t         len, i;
     unsigned char *p, *q, scramble_buff[SCRAMBLE_LENGTH + 1];
 
@@ -227,6 +227,15 @@ change_clt_auth_content(unsigned char *payload, int length,
     if (pwd == NULL) {
         tc_log_info(LOG_WARN, 0, "user:%s,pwd is null", user);
         return 0;
+    }
+    pm_user = retrieve_user_map(user);
+
+    if (pm_user==NULL){
+        m_user[0]=0;
+    }else{
+        strcpy(str, pm_user);
+        strcpy(m_user,pm_user);
+        tc_log_info(LOG_INFO, 0, "user:%s,change to map user: %s", user,pm_user);
     }
 
     /* skip user */
