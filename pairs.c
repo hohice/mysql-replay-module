@@ -129,8 +129,10 @@ retrieve_mysql_user_pwd_info(tc_pool_t *pool, char *pairs)
         if (next != NULL) {
             strncpy(p_user_info->map_user, to_user+1, q - to_user);
             strncpy(p_user_info->user, p, to_user-p);
+            tc_log_info(LOG_INFO, 0, "add s_user:%s and add m_user: %s",p_user_info->user,p_user_info->map_user);
         }else{
             strncpy(p_user_info->user, p, q - p);
+            tc_log_info(LOG_INFO, 0, "add s_user:%s and m_user is null",p_user_info->user);
         }
 
         
